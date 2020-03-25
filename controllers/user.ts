@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { User } from '../models/User';
 import Bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
-router.post('/register', async (req, res) => {
+router.post('/register', async (req: Request, res: Response) => {
   const { username, password } = req.body;
   const user = await User.findOne({where: {
     username
@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req: Request, res: Response) => {
   const { username, password } = req.body;
   const user = await User.findOne({
     where: {
@@ -40,7 +40,10 @@ router.post('/login', async (req, res) => {
     Bcrypt.compare(password, user.password)
       .then(result => {
         if(result){
-          const token = jwt.sign({name: user.name}, process.env.TOKEN_SECRET);
+          const token = jwt.sign({user: {
+            id: user.id,
+            name: user.name
+          }}, process.env.TOKEN_SECRET!);
           res.json({
             token
           });
@@ -52,16 +55,16 @@ router.post('/login', async (req, res) => {
   }
 });
 
-const authJTW = (req, res, next) => {
+const authJTW = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if(authHeader) {
     const token = authHeader.split(' ')[1];
     console.log(token);
-    const tokenSecret = process.env.TOKEN_SECRET;
-    jwt.verify(token, tokenSecret, (err, user) => {
+    const tokenSecret = process.env.TOKEN_SECRET!;
+    jwt.verify(token, tokenSecret, (err, data: any) => {
       if(err)
         return res.send('Invalid token');
-      req.user = user;
+      req.user = data.user;
       next();
     });
   }
@@ -69,8 +72,13 @@ const authJTW = (req, res, next) => {
     res.send('No authorization headers');
 };
 
-router.get('/users', authJTW, (req, res) => {
-  User.findAll()
+router.get('/users', authJTW, (req: Request, res: Response) => {
+  const { id } = req.user;
+  User.findAll({
+    where: {
+      id
+    }
+  })
     .then(data => {
       res.json(data);
     });
