@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import {sequelize} from './config';
+import { Post } from './Post';
 export class User extends Model {
   public id!: number;
   public username!: string;
@@ -29,5 +30,10 @@ User.init({
   sequelize: sequelize, 
   modelName: 'user',
   tableName: 'User'
+});
+User.hasMany(Post, {
+  sourceKey: 'id',
+  foreignKey: 'userId',
+  as: 'posts'
 });
 User.sync({});

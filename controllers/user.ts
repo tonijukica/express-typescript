@@ -1,8 +1,8 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, } from 'express';
 import { User } from '../models/User';
 import Bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
+import authJTW from './auth';
 const router = express.Router();
 
 router.post('/register', async (req: Request, res: Response) => {
@@ -55,24 +55,9 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 });
 
-const authJTW = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if(authHeader) {
-    const token = authHeader.split(' ')[1];
-    console.log(token);
-    const tokenSecret = process.env.TOKEN_SECRET!;
-    jwt.verify(token, tokenSecret, (err, data: any) => {
-      if(err)
-        return res.send('Invalid token');
-      req.user = data.user;
-      next();
-    });
-  }
-  else
-    res.send('No authorization headers');
-};
+router.use(authJTW);
 
-router.get('/users', authJTW, (req: Request, res: Response) => {
+router.get('/users', (req: Request, res: Response) => {
   const { id } = req.user;
   User.findAll({
     where: {
