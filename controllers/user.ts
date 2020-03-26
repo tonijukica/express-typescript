@@ -1,5 +1,6 @@
 import express, { Request, Response, } from 'express';
 import { User } from '../models/User';
+import { Comment } from '../models/Comment';
 import Bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import authJTW from './auth';
@@ -69,5 +70,14 @@ router.get('/users', (req: Request, res: Response) => {
     });
 });
 
+router.get('/user/comments', (req: Request, res: Response) => {
+  const { id } = req.user;
+  Comment.findAll({
+    where: {
+      userId: id
+    }
+  })
+    .then((comments) => res.json(comments));
+});
 
 export default router;

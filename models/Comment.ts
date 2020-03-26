@@ -1,10 +1,10 @@
 import { DataTypes, Model } from 'sequelize';
-import { sequelize } from './config';
-import { Comment } from './Comment';
-export class Post extends Model {
+import {sequelize} from './config';
+
+export class Comment extends Model {
   public id!: number;
+  public postId!: number;
   public userId!: number;
-  public title!: string;
   public text!: string;
   public likes!: number;
 
@@ -12,22 +12,22 @@ export class Post extends Model {
   public readonly updatedAt!: Date;
 }
 
-Post.init({
+Comment.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
+  postId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
   text: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING
   },
   likes: {
     type: DataTypes.INTEGER,
@@ -35,14 +35,8 @@ Post.init({
   }
 }, {
   sequelize: sequelize,
-  modelName: 'post',
-  tableName: 'Post'
+  modelName: 'comment',
+  tableName: 'Comment'
 });
 
-Post.hasMany(Comment, {
-  sourceKey: 'id',
-  foreignKey: 'postId',
-  as: 'comment'
-});
-
-Post.sync({});
+Comment.sync();
