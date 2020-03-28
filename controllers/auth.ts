@@ -5,7 +5,6 @@ const authJTW = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if(authHeader) {
     const token = authHeader.split(' ')[1];
-    console.log(token);
     const tokenSecret = process.env.TOKEN_SECRET!;
     jwt.verify(token, tokenSecret, (err, data: any) => {
       if(err)

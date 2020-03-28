@@ -1,6 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from './config';
 import { Comment } from './Comment';
+
 export class Post extends Model {
   public id!: number;
   public userId!: number;
